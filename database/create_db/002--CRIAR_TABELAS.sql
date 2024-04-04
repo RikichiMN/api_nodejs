@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS PRODUTOS (
 	prd_img varchar(255) NOT NULL, 
 	prd_destaque bit NOT NULL, 
 	prd_img_destaque varchar(255) NULL, 
-	prd_descricao varchar(100) NOT NULL, 
+	prd_descricao varchar(100) NOT NULL,
+	prd_ativo bit NOT NULL, 
 	PRIMARY KEY (prd_id)
 );
 
