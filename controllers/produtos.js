@@ -1,4 +1,3 @@
-const { json } = require('express'); 
 const db = require('../database/connection'); 
 
 module.exports = {
@@ -8,9 +7,8 @@ module.exports = {
             prd_id, prd_nome, prd_valor, prd_unidade, 
             ptp_id, prd_disponivel, prd_img, 
             prd_destaque, prd_img_destaque, 
-            prd_descricao, prd_ativo = 1 AS prd_ativo
-            FROM produtos
-            WHERE prd_ativo = 1;`;
+            prd_descricao
+            FROM produtos`;
             const produtos = await db.query(sql);
             const nItens = produtos[0].lenght;
             // throw new Error('Eu causei o erro!');
@@ -38,12 +36,12 @@ module.exports = {
                 (prd_id, prd_nome, prd_valor, prd_unidade, 
                     ptp_id, prd_disponivel, prd_img, 
                     prd_destaque, prd_img_destaque, 
-                    prd_descricao, prd_ativo)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                    prd_descricao)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
                 const values = [prd_nome, prd_valor, prd_unidade, 
                     ptp_id, prd_disponivel, prd_img, 
                     prd_destaque, prd_img_destaque, 
-                    prd_descricao, prd_ativo];
+                    prd_descricao];
                 const execSql = await db.query(sql, values);
                 const prd_id = execSql[0].insertID;
             return response.status(200).json({
@@ -64,16 +62,16 @@ module.exports = {
             const { prd_nome, prd_valor, prd_unidade, 
                 ptp_id, prd_disponivel, prd_img, 
                 prd_destaque, prd_img_destaque, 
-                prd_descricao, prd_ativo } = request.body;
+                prd_descricao } = request.body;
                 const [ prd_id ] = request.params;
                 const sql = `UPDATE produtos set prd_nome = ?, prd_valor = ?, prd_unidade = ?, 
                 ptp_id = ?, prd_disponivel = ?, prd_img= ?, 
                 prd_destaque = ?, prd_img_destaque = ?, 
-                prd_descricao= ?, prd_ativo= ? WHERE prd_id = ?;`;
+                prd_descricao= ? WHERE prd_id = ?;`;
                 const values = [prd_valor, prd_unidade, 
                     ptp_id, prd_disponivel, prd_img, 
                     prd_destaque, prd_img_destaque, 
-                    prd_descricao, prd_ativo, prd_id];
+                    prd_descricao, prd_id];
                 const atualizarDados = await db.query(sql, values);
             return response.status(200).json({
                 sucesso: true, 
@@ -90,16 +88,21 @@ module.exports = {
     }, 
     async apagarProdutos(request, response) {
         try {
+            const { prd_id } = request.params;
+            const sql = `DELETE FROM produtos WHERE prd_id = ?`;
+            const values = [prd_id];
+            const excluir = await db.query(sql, values);
+
             return response.status(200).json({
                 sucesso: true, 
-                mensagem: 'Apagar produtos.', 
-                dados: null
+                mensagem: `Produto ${prd_id} excluido com sucesso`, 
+                dados: excluir[0].affectedRows
             });
         } catch (error) {
             return response.status(500).json({
                 sucesso: false, 
-                mensagem: `Erro na requisição. -${error}`, 
-                dados: null
+                mensagem: `Erro na requisição.`,
+                dados: error.message
             });
         }
     }, 
